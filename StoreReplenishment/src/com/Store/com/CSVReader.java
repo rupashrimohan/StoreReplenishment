@@ -1,4 +1,5 @@
 package com.Store.com;
+import java.io.FileWriter;
 
 import java.io.BufferedReader;
 
@@ -15,11 +16,35 @@ public class CSVReader {
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		List<StoreClass> store = readFromCSV("D:/JavaFileHandling/store.csv");
-
+		List<StoreClass> store = readFromCSV("D:/JavaFileHandling/StoreSKUList.csv");
+        List<Integer> uniqueStores = new ArrayList<>();
+        List<StoreClass> stores_printed= new ArrayList<>();
+        
                 for (StoreClass each : store) {
-            System.out.println(each);
+                	if(each.getStoreQty() < (each.getShelfQty()*2))
+                	{
+                		stores_printed.add(each);
+                	}
+                	
+                	if(!uniqueStores.contains(each.getStorenum()))
+                	{
+                		uniqueStores.add(each.getStorenum());
+                	}
+                	
+            //System.out.println(each);
         }
+                for (int store_unique : uniqueStores)
+                {
+                	String file_name= "store_"+store_unique+".txt";
+                FileWriter writer = new FileWriter("D:/JavaFileHandling/"+file_name); 
+                for(StoreClass store_deficient: stores_printed) {
+                	if(store_deficient.getStorenum() == store_unique)
+                	{
+                  writer.write(store_deficient.toString() + System.lineSeparator());
+                	}
+                }
+                writer.close();
+                }
     }
 	private static List<StoreClass> readFromCSV(String fileName) {
         List<StoreClass> store = new ArrayList<>();
@@ -27,15 +52,17 @@ public class CSVReader {
 
         
         try (
-        		BufferedReader br = Files.newBufferedReader(pathToFile,StandardCharsets.US_ASCII))
+        		BufferedReader br = Files.newBufferedReader(pathToFile))
         {
 
  
             String line = br.readLine();
-
+int line_num=1;
  
-            while (line != null) {
-
+            while (line != null)
+            {
+               if(line_num > 1)
+               {
              String[] attributes = line.split(",");
 
                 StoreClass storeClass = createStoreDetails(attributes);
@@ -43,7 +70,10 @@ public class CSVReader {
  
               store.add(storeClass);
 
-                 line = br.readLine();
+                
+              } 
+               line = br.readLine();
+              	line_num++;
             }
 
         } catch (IOException ioe) {
@@ -54,8 +84,8 @@ public class CSVReader {
     }
 
     private static StoreClass createStoreDetails(String[] metadata) {
-        String storenum = metadata[0];
-        String skeunum = metadata[1];
+        int storenum = Integer.parseInt(metadata[0]);
+        int skeunum = Integer.parseInt(metadata[1]);
         int shelfQty = Integer.parseInt(metadata[2]);
         int storeQty = Integer.parseInt(metadata[3]);
 
